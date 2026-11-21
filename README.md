@@ -47,7 +47,7 @@ The AI assistant reads the same file, so it always answers from your latest cont
 
 1. Push this folder to a **new** GitHub repo. `.env*.local` is already in `.gitignore`; never commit the key.
 2. Import the repo in Vercel (framework is detected automatically).
-3. In **Project → Settings → Environment Variables**, add `GROQ_API_KEY` (and optionally `GROQ_MODEL`).
+3. In the environment variables, add either `NVIDIA_API_KEY` (free at build.nvidia.com; optional `NVIDIA_MODEL`) or `GROQ_API_KEY` (optional `GROQ_MODEL`). NVIDIA wins if both are set.
 4. Add `NEXT_PUBLIC_SITE_URL` (your final URL) so Open Graph tags, `sitemap.xml` and `robots.txt` point at the right domain. Then deploy.
 
 A social preview image is generated at `/opengraph-image` from `app/opengraph-image.tsx`, and the favicon is `app/icon.svg`.

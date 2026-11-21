@@ -20,10 +20,31 @@ function limited(ip: string) {
   return recent.length > MAX_REQUESTS;
 }
 
+// Both providers speak the OpenAI chat-completions format. NVIDIA is used when its key is set.
+function provider() {
+  if (process.env.NVIDIA_API_KEY) {
+    return {
+      name: "NVIDIA",
+      key: process.env.NVIDIA_API_KEY,
+      url: "https://integrate.api.nvidia.com/v1/chat/completions",
+      model: process.env.NVIDIA_MODEL || "nvidia/nemotron-3.5-lightning-30b-a3b",
+    };
+  }
+  if (process.env.GROQ_API_KEY) {
+    return {
+      name: "Groq",
+      key: process.env.GROQ_API_KEY,
+      url: "https://api.groq.com/openai/v1/chat/completions",
+      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+    };
+  }
+  return null;
+}
+
 export async function POST(req: Request) {
-  const key = process.env.GROQ_API_KEY;
-  if (!key) {
-    return NextResponse.json({ error: "The assistant is not configured yet. Add GROQ_API_KEY to the environment." }, { status: 503 });
+  const p = provider();
+  if (!p) {
+    return NextResponse.json({ error: "The assistant is not configured yet. Add NVIDIA_API_KEY or GROQ_API_KEY to the environment." }, { status: 503 });
   }
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -46,11 +67,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const res = await fetch(p.url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${p.key}` },
       body: JSON.stringify({
-        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+        model: p.model,
+        // Nemotron models reason out loud by default; switch it off so replies are fast and land in `content`.
+        ...(p.model.includes("nemotron") ? { chat_template_kwargs: { enable_thinking: false } } : {}),
         temperature: 0.3,
         max_tokens: 300,
         messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
@@ -58,7 +81,7 @@ export async function POST(req: Request) {
       signal: AbortSignal.timeout(20000),
     });
     if (!res.ok) {
-      console.error("Groq error", res.status, await res.text());
+      console.error(`${p.name} error`, res.status, await res.text());
       return NextResponse.json({ error: "The assistant couldn't answer right now. Please try again." }, { status: 502 });
     }
     const data = await res.json();
