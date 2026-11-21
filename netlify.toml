@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Netlify's Next.js runtime is installed automatically for Next.js sites.
+# It turns the API route (the assistant) and the Open Graph image into functions.

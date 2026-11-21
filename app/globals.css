@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* One canvas, one accent. Everything else is type, rules and photographs. */
+:root {
+  --bg: #0b0b0c;
+  --bg-2: #121214;
+  --fg: #f3efe7;
+  --muted: #8f8b84;
+  --line: rgba(243, 239, 231, 0.14);
+  --line-strong: rgba(243, 239, 231, 0.32);
+  --accent: #ff4f12;
+  --accent-soft: #ff8a5c;
+  --accent-pale: #ffd9c7;
+  --accent-wash: rgba(255, 79, 18, 0.1);
+
+  /* Legacy token names still used by inner pages. Mapped onto the new palette. */
+  --paper: var(--bg);
+  --sheet: var(--bg-2);
+  --ink: var(--fg);
+  --graphite: var(--muted);
+  --rule: var(--line);
+  --lavender: var(--accent-soft);
+  --lavender-deep: var(--accent);
+  --lavender-wash: var(--accent-wash);
+  --coral: var(--accent);
+  --mint: var(--accent-pale);
+  --gold: var(--accent-soft);
+  --glow: 255 79 18;
+
+  color-scheme: dark;
+}
+
+html { scroll-behavior: auto; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Instrument Sans Variable", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Film grain, very faint. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  z-index: 50;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+::selection { background: var(--accent); color: var(--bg); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- Type ---------- */
+.font-display { font-family: "Bricolage Grotesque Variable", "Instrument Sans Variable", sans-serif; }
+.display {
+  font-family: "Bricolage Grotesque Variable", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  font-variation-settings: "opsz" 96, "wdth" 100;
+}
+.display-wide { font-variation-settings: "opsz" 96, "wdth" 112; }
+.serif-i { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+.mono { font-family: "JetBrains Mono Variable", ui-monospace, monospace; }
+.meta {
+  font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.accent { color: var(--accent); }
+.outline-text {
+  -webkit-text-stroke: 1px var(--line-strong);
+  color: transparent;
+}
+
+/* Kept for inner pages that still reference it: now a solid accent, no gradient. */
+.text-gradient, .text-gradient-cool { color: var(--accent); }
+.prose-serif { font-family: "Instrument Serif", Georgia, serif; font-size: 1.35rem; line-height: 1.45; letter-spacing: -0.005em; }
+
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.3s ease;
+}
+.link-underline:hover { background-size: 0% 1px; background-position: 100% 100%; }
+
+/* ---------- Surfaces: flat panels, hairlines, no blur, no glow ---------- */
+.card {
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  border-radius: 0.5rem;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+.card:hover { border-color: var(--line-strong); }
+.card::before { content: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.hr { height: 1px; background: var(--line); }
+.hr-strong { height: 1px; background: var(--line-strong); }
+
+/* ---------- Marquee ---------- */
+.marquee { overflow: hidden; }
+.marquee-track { display: flex; width: max-content; animation: marquee 40s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ---------- Image treatments ---------- */
+.img-dim { filter: grayscale(100%) contrast(1.05) brightness(0.9); transition: filter 0.6s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.group:hover .img-dim, .img-dim:hover { filter: none; }
+
+.placeholder-note { border: 1px dashed var(--accent-soft); background: var(--accent-wash); color: var(--muted); }
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none !important; }
+  .img-dim { transition: none; }
+}
